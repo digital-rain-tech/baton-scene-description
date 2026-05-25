@@ -38,5 +38,5 @@
       "identifier": "zenodo"
     }
   ],
-  "notes": "Camera movement and shot type vocabulary aligned with CameraBench/CineTechBench taxonomies. Schema designed for downstream mapping to OpenUSD scene graphs, AI video generation prompts, and OpenTimelineIO editorial timelines."
+  "notes": "Developed in connection with Storming Teacup Studios. Camera movement and shot type vocabulary aligned with CameraBench/CineTechBench taxonomies. Schema designed for downstream mapping to OpenUSD scene graphs, AI video generation prompts, and OpenTimelineIO editorial timelines."
 }

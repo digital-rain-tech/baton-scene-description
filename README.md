@@ -148,6 +148,10 @@ The trend toward structured scene control in AI video generation — including J
 
 See: "Baton Scene Description: A Typed Intent Schema Bridging Embodied Direction and AI Scene Generation" (arXiv preprint, forthcoming)
 
+## Acknowledgments
+
+The Baton Scene Description schema was developed in connection with [Storming Teacup Studios](https://stormingteacup.com), where it forms part of the Baton directing interface system. JK Fidden contributed the directorial domain expertise and cinematic vocabulary that grounds the schema design.
+
 ## License
 
 Apache License 2.0. See [LICENSE](LICENSE).
