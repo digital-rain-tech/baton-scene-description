@@ -15,7 +15,7 @@
     "session_id": { "type": "string" },
     "beat_id": { "type": "string" },
     "sequence_num": { "type": "integer", "minimum": 0 },
-    "timestamp_ms": { "type": "number" },
+    "timestamp_ms": { "type": "number", "minimum": 0 },
     "duration_seconds": { "type": "number", "minimum": 0 },
     "narrative_function": { "$ref": "#/$defs/NarrativeFunction" },
     "camera": { "$ref": "#/$defs/CameraState" },
@@ -128,7 +128,7 @@
         "quality": { "$ref": "#/$defs/LightQuality" },
         "direction": { "$ref": "#/$defs/LightDirection" },
         "intensity": { "type": "number", "minimum": 0, "maximum": 1 },
-        "color_temp_k": { "type": "number" }
+        "color_temp_k": { "type": "number", "minimum": 0 }
       },
       "additionalProperties": false
     },
@@ -153,8 +153,8 @@
         },
         "style": { "$ref": "#/$defs/LightingStyle" },
         "time_of_day": { "$ref": "#/$defs/TimeOfDay" },
-        "color_temp_k": { "type": "number" },
-        "contrast_ratio": { "type": "number" }
+        "color_temp_k": { "type": "number", "minimum": 0 },
+        "contrast_ratio": { "type": "number", "minimum": 0 }
       },
       "additionalProperties": false
     },
@@ -235,6 +235,10 @@
     "ReferenceImage": {
       "type": "object",
       "required": ["anchor_type", "description"],
+      "anyOf": [
+        { "required": ["url"] },
+        { "required": ["data_uri"] }
+      ],
       "properties": {
         "url": { "type": "string", "format": "uri" },
         "data_uri": { "type": "string" },
