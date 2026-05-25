@@ -141,8 +141,8 @@ The trend toward structured scene control in AI video generation — including J
   title        = {{Baton Scene Description (BSD): Schema Specification (v0.1–v0.3)}},
   year         = {2026},
   publisher    = {Zenodo},
-  doi          = {10.5281/zenodo.XXXXXXX},
-  url          = {https://doi.org/10.5281/zenodo.XXXXXXX}
+  doi          = {10.5281/zenodo.20373111},
+  url          = {https://doi.org/10.5281/zenodo.20373111}
 }
 ```
 
