@@ -118,6 +118,22 @@ BSD occupies the **intent layer** in the production pipeline:
 
 BSD maps to both USD (for spatial computing and scene graphs) and AI video generation prompts (for text-to-video and image-to-video systems).
 
+## Related Work
+
+BSD builds on and differentiates from several prior efforts to structure cinematic information:
+
+| Format | Year | What it captures | What it doesn't |
+|--------|------|------------------|-----------------|
+| [Fountain](https://fountain.io/) | 2012 | Screenplay text (dialogue, scene headings, action lines) | No camera, lighting, mood, or technical direction |
+| [MSML](https://dl.acm.org/doi/abs/10.1145/1600193.1600231) | 2009 | Screenplay structure as XML, timing model, animation hooks | Narrative structure, not cinematographic intent; never widely adopted |
+| [Prose Storyboard Language](https://arxiv.org/abs/1508.07593) | 2015 | Shot-by-shot cinematographic annotation of existing films | Annotation language, not a real-time intent format for AI generation |
+| [OpenUSD](https://openusd.org/) | 2016 | Scene graph: geometry, transforms, materials, lights, animation | No directorial intent (mood, performance notes, flow control) |
+| [OTIO](https://github.com/AcademySoftwareFoundation/OpenTimelineIO) | 2018 | Editorial timeline: clips, transitions, markers | No scene state or directorial intent |
+
+BSD's camera movement and shot type enums align with the taxonomies established by [CameraBench](https://arxiv.org/abs/2504.15376) (2025) and [CineTechBench](https://arxiv.org/abs/2505.15145) (2025), which define structured vocabularies for shot scale, angle, composition, camera movement, lighting, color, and focal length across seven cinematographic dimensions.
+
+The trend toward structured scene control in AI video generation — including JSON schema prompting in Veo 3.1 and per-shot storyboard control in Kling 3.0 — validates BSD's core premise: that structured, typed data produces more consistent results than freeform text. BSD provides a model-agnostic interchange layer rather than a model-specific control format.
+
 ## How to Cite
 
 ```bibtex
