@@ -1,0 +1,384 @@
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\documentclass{article}
+\usepackage{arxiv}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{libertine}
+\usepackage[libertine]{newtxmath}
+\usepackage{xcolor}
+\usepackage{framed}
+\usepackage{booktabs}
+\usepackage{listings}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+
+\lstset{
+  basicstyle=\ttfamily\scriptsize,
+  frame=single,
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true
+}
+
+\title{Baton Scene Description: A Typed Intent Schema\\Bridging Embodied Direction and AI Scene Generation}
+
+\author{
+  Augustin Chan\\
+  Digital Rain Technologies\\
+  \texttt{aug@iterative.day}
+  \and
+  JK Fidden\\
+  Storming Teacup Studios\\
+  \texttt{jk@stormingteacup.com}
+}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+AI video generation models accept text prompts or explicit parameters, but film directors communicate through embodied performance---gesture, expression, posture, voice, physical energy. To our knowledge, no existing open interchange format captures directorial intent as typed, machine-readable data that downstream generation systems can consume.
+
+We present the Baton Scene Description (BSD), a structured schema for cinematic directorial intent. BSD captures what the director \emph{wants}---camera movement with speed, lighting with colour temperature and contrast ratio, character emotional state with intensity, scene flow control---in composable typed data. We define a two-layer architecture separating a persistent \textbf{SessionContext} (world bible, character and location registries, style guide, consistency anchors) from a per-tick \textbf{BeatDescription} (camera, lighting, characters, mood, flow control, transitions) produced every interpretation cycle.
+
+BSD occupies a missing layer in the production pipeline. OpenUSD~\cite{openusd2016} describes what a scene \emph{contains}; OpenTimelineIO~\cite{otio2018} describes how shots are \emph{assembled}; BSD describes what the director \emph{means}. We publish three schema versions as JSON Schema (draft 2020-12), demonstrate concrete mappings from BSD to USD scene graphs and AI video generation prompts, and position the schema as a model-agnostic interchange layer for the emerging real-time AI filmmaking pipeline.
+\end{abstract}
+
+\textbf{Keywords:} scene description, directorial intent, cinematography, interchange format, JSON Schema, OpenUSD, video generation, embodied interaction
+
+%% ============================================================
+\section{Introduction}\label{sec:introduction}
+%% ============================================================
+
+Film direction is fundamentally embodied. A director communicates intent through body---leaning into a monitor to signal intensity, sweeping an arm to indicate a tracking shot, modulating vocal energy to shape an actor's performance. This embodied vocabulary is not incidental; it is the primary medium through which directorial vision becomes realized scene~\cite{katz2019}.
+
+AI video generation systems---HappyHorse~\cite{happyhorse2026}, Seedance~\cite{seedance2026}, Veo, Kling, Runway, Sora---accept text prompts or explicit parameters. None interpret embodied performance. Existing scene description formats describe what a scene \emph{contains} (OpenUSD~\cite{openusd2016}: geometry, transforms, materials, light physics) or how shots are \emph{assembled} (OpenTimelineIO~\cite{otio2018}: clips, transitions, timeline structure). To our knowledge, no open format captures what the director \emph{means}: mood, emotional intensity, performance notes, flow control, framing decisions as structured data.
+
+This paper presents the Baton Scene Description (BSD), a typed interchange schema for cinematic directorial intent. Our contributions are:
+
+\begin{enumerate}
+  \item \textbf{BSD}---a typed interchange schema for directorial intent, grounded in standard cinematic vocabulary, published as JSON Schema (draft 2020-12) with TypeScript source of truth.
+  \item \textbf{Two-layer architecture}---SessionContext (world bible, registries, consistency anchors) separated from BeatDescription (per-tick directorial state), enabling session-level consistency without per-tick redundancy.
+  \item \textbf{Intent--realization separation}---concrete mappings from BSD to OpenUSD scene graphs, AI video generation prompts, and OpenTimelineIO editorial timelines.
+  \item \textbf{Schema evolution}---three versions (v0.1, v0.2, v0.3) demonstrating principled evolution from flat description to structured multi-character interaction.
+\end{enumerate}
+
+This paper is a schema specification and design argument, not an empirical evaluation. We present the schema, its rationale, and its positioning in the production pipeline; empirical validation through user studies and integration benchmarks is future work.
+
+\subsection{Why Now}
+
+Two capabilities have recently converged to make embodied AI direction viable. Vision LLMs (Gemini~\cite{gemini2024}, GPT-4V, Qwen) can interpret human performance from webcam frames in real time. Interactive video generation systems (Happy Oyster~\cite{happyoyster2026} Directing Mode, Veo 3.1~\cite{veo31_2025}) accept continuous mid-generation interventions. These two capabilities, connected by a structured interchange format, create the first viable pipeline for embodied AI direction. BSD provides that interchange format.
+
+The rapid maturation of AI video generation---HappyHorse 1.0~\cite{happyhorse2026}, Seedance 2.0~\cite{seedance2026}, Happy Oyster~\cite{happyoyster2026}---and the emerging trend toward structured scene control in commercial systems (e.g.\ reported JSON schema prompting in Veo 3.1~\cite{veo31_2025}, per-shot storyboard control in Kling 3.0~\cite{kling30_2025}) supports BSD's core premise: structured, typed data produces more consistent results than freeform text.
+
+%% ============================================================
+\section{Related Work}\label{sec:related}
+%% ============================================================
+
+\subsection{Scene Description Formats}
+
+OpenUSD~\cite{openusd2016} is the industry standard for scene graphs: geometry, cameras, lights, materials, transforms, and animation curves. It describes what a scene contains but has no facility for directorial intent---mood, emotional intensity, performance notes, or flow control cannot be expressed in its type system. OpenTimelineIO~\cite{otio2018} captures editorial timeline structure---clips, transitions, markers---but not scene state or directorial intent.
+
+Fountain~\cite{fountain2012} structures screenplay text (dialogue, scene headings, action lines) but captures no camera, lighting, mood, or technical direction. MSML~\cite{msml2009} proposed XML-based screenplay structure with timing models and animation hooks, but targeted narrative structure rather than cinematographic intent and was never widely adopted. The Prose Storyboard Language~\cite{psl2015} annotates existing films with shot-by-shot cinematographic information but is an annotation language, not a real-time intent format for AI generation.
+
+To our knowledge, none of these formats occupy the \emph{intent} layer: the typed representation of directorial intent from embodied performance, distinct from what the scene contains or how it is edited.
+
+\subsection{AI Cinematography}
+
+FilMaster~\cite{filmaster2026} applies cinematic principles to generative AI through Multi-shot Synergized RAG from 440K film clips, but accepts only text input. CinePreGen~\cite{cinepregen2024} enables camera-controllable video previsualization via engine-powered diffusion but uses a storyboard interface rather than embodied direction. A comprehensive survey of intelligent cinematography~\cite{intelligentcinematography2024} categorizes General, Virtual, Live, and Aerial production modes; BSD proposes a complementary ``Director-Embodied'' category that none of these address. A recent survey of generative AI for film creation~\cite{genaifilm2025} notes that artists rank camera control and character consistency as top priorities---precisely the fields BSD types.
+
+CameraBench~\cite{camerabench2025} and CineTechBench~\cite{cinetechbench2025} define structured vocabularies for shot scale, angle, composition, camera movement, lighting, color, and focal length across seven cinematographic dimensions. BSD's camera movement and shot type enumerations are aligned with these taxonomies, ensuring interoperability with benchmarking and evaluation efforts.
+
+\subsection{AI Video Generation}
+
+The current generation of AI video models demonstrates rapid capability growth. HappyHorse 1.0~\cite{happyhorse2026} (Alibaba ATH) generates joint video and audio at native 1080p with synchronized lip-sync. Seedance 2.0~\cite{seedance2026} (ByteDance) accepts multimodal references---images, video clips, and audio---enabling compositional control beyond text prompts alone. Happy Oyster~\cite{happyoyster2026} (Alibaba) introduces real-time interactive world models with a Directing Mode for scene steering via text or voice. (We note that technical details for these systems are based on product announcements; peer-reviewed technical reports are not yet available for all.)
+
+All of these systems accept explicit commands (text, parameters, reference media). None interpret embodied performance. BSD bridges this gap: a director's body language, interpreted by a vision LLM, produces BSD; BSD maps to the structured input each generation system expects.
+
+\subsection{Gesture-Based Interaction}
+
+GesPrompt~\cite{gesprompt2025} uses co-speech gestures to augment LLM interaction in VR---the closest prior work in spirit to embodied AI direction. However, it targets general XR interaction, not filmmaking, and does not produce structured cinematic output. Dourish's foundational work on embodied interaction~\cite{dourish2001} and Jacob et al.'s reality-based interaction framework~\cite{jacob2008} provide theoretical grounding for body-as-interface approaches.
+
+Film sets have established gestural conventions---closed fist for silence, throat slash for cut, circling finger for rolling---that constitute a real-world directorial vocabulary. BSD formalizes this vocabulary as typed data.
+
+\subsection{Patent Landscape}
+
+US Patent US10825227B2~\cite{patent_us10825227} covers AI generation of structured scene descriptions from multimodal input. We understand BSD as a \emph{data format specification}---a typed schema defining how directorial intent is represented---rather than a method for generating scene descriptions. We draw an analogy to MIDI~\cite{midi1983} (a data format) versus a synthesizer (a generation method). We cite this patent for completeness and to distinguish BSD's contribution as a format, not a generation technique.
+
+%% ============================================================
+\section{Baton Scene Description Schema}\label{sec:schema}
+%% ============================================================
+
+\subsection{Design Principles}
+
+BSD is designed around five principles:
+
+\begin{enumerate}
+  \item \textbf{Typed over freeform.} Enumerations for camera movements, angles, shot types, lighting roles, and flow control; normalized numerics (0--1) for intensity, speed, and composition; arrays for multi-entity scenes. Freeform strings are reserved for fields where enumeration would be premature (mood, performance notes, direction notes).
+  \item \textbf{Grounded in practice.} Vocabulary derived from standard directorial terminology~\cite{katz2019,brown2016,mascelli1965}. Camera movements follow film grammar conventions; lighting uses three-point foundations; shot types use cinematography-standard scale.
+  \item \textbf{Composable.} Each field is independent. Partial updates are valid. Defaults exist for every field. A system can consume BSD fields selectively---using only camera and lighting, for example---without requiring the full schema.
+  \item \textbf{Generation-model-agnostic.} BSD maps to multiple downstream targets: USD scene graphs, video generation prompts (HappyHorse~\cite{happyhorse2026}, Seedance~\cite{seedance2026}, Veo, Kling), and OTIO timelines. The schema does not encode model-specific parameters.
+  \item \textbf{Two-layer architecture.} Session-level context (world bible, registries, style anchors) is separated from per-tick directorial state. This avoids repeating character definitions, location descriptions, and style guides in every beat.
+\end{enumerate}
+
+\subsection{Schema Versions}
+
+BSD has evolved through three versions, each published as JSON Schema (draft 2020-12)~\cite{jsonschema2020}:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Version} & \textbf{Architecture} & \textbf{Key additions} \\
+\midrule
+v0.1 & Flat (single object) & 11 fields: camera, lighting, characters, environment, mood, flow \\
+v0.2 & Two-layer & SessionContext + BeatDescription; style guides, negative prompts \\
+v0.3 & Two-layer (extended) & Interactions, character modes, reference images, dialogue, narrative \\
+\bottomrule
+\end{tabular}
+\caption{BSD schema version evolution.}
+\label{tab:versions}
+\end{table}
+
+\subsection{Camera}
+
+The camera state captures five dimensions of cinematographic control:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}llp{7cm}@{}}
+\toprule
+\textbf{Field} & \textbf{Type} & \textbf{Values / Range} \\
+\midrule
+\texttt{movement} & enum (22) & static, pan\_left/right, whip\_pan, tilt\_up/down, pedestal\_up/down, truck\_left/right, dolly\_in/out, zoom\_in/out, dolly\_zoom, crane\_up/down, tracking, arc\_left/right, steadicam, handheld \\
+\texttt{movement\_speed} & float & 0 (still) -- 1 (maximum) \\
+\texttt{angle} & enum (8) & eye\_level, low/high\_angle, birds/worms\_eye, dutch\_angle, over\_the\_shoulder, pov \\
+\texttt{shot\_type} & enum (10) & extreme\_wide through extreme\_close\_up, insert, two\_shot \\
+\texttt{composition} & object & subject\_position (5 values), depth\_of\_field (3), headroom (0--1), look\_room (0--1) \\
+\bottomrule
+\end{tabular}
+\caption{CameraState fields. Enum values align with CameraBench~\cite{camerabench2025} and CineTechBench~\cite{cinetechbench2025} taxonomies.}
+\label{tab:camera}
+\end{table}
+
+\subsection{Lighting}
+
+Lighting state combines individual source definitions with scene-level style:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}llp{7cm}@{}}
+\toprule
+\textbf{Field} & \textbf{Type} & \textbf{Values / Range} \\
+\midrule
+\texttt{sources[]} & array & Each: role (6 values: key, fill, back, rim, ambient, practical), quality (hard/soft), direction (8 values), intensity (0--1), color\_temp\_k (Kelvin) \\
+\texttt{style} & enum (6) & high\_key, low\_key, chiaroscuro, motivated, natural, silhouette \\
+\texttt{time\_of\_day} & enum (8) & dawn through candlelight \\
+\texttt{color\_temp\_k} & number & Dominant scene Kelvin \\
+\texttt{contrast\_ratio} & number & Key-to-fill ratio (e.g.\ 4 = 4:1) \\
+\bottomrule
+\end{tabular}
+\caption{LightingState fields.}
+\label{tab:lighting}
+\end{table}
+
+\subsection{Characters}
+
+Each character in the beat array carries performance state:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}llp{7cm}@{}}
+\toprule
+\textbf{Field} & \textbf{Type} & \textbf{Notes} \\
+\midrule
+\texttt{character\_ref} & string & References character registry in SessionContext \\
+\texttt{active\_mode} & string & v0.3: references a mode defined in the character registry \\
+\texttt{emotional\_state} & string & Freeform: ``quiet rage'', ``grief'', ``joy breaking through'' \\
+\texttt{emotional\_intensity} & float & 0 (suppressed) -- 1 (full expression) \\
+\texttt{action} & string & ``turns away from the window'' \\
+\texttt{blocking} & string & Position/movement in scene space \\
+\texttt{is\_speaking} & boolean & Whether character is delivering dialogue \\
+\texttt{dialogue} & string & Current line \\
+\texttt{performance\_note} & string & ``play the decision, not the emotion'' \\
+\bottomrule
+\end{tabular}
+\caption{CharacterBeatStateV3 fields.}
+\label{tab:character}
+\end{table}
+
+\subsection{Scene State}
+
+The remaining beat fields capture scene-level directorial intent:
+
+\begin{itemize}\tightlist
+  \item \texttt{mood} (freeform) and \texttt{mood\_intensity} (0--1) for overall emotional tone
+  \item \texttt{environment}: location reference, mode (camera/imagined), description, weather, time period, interior/exterior
+  \item \texttt{flow\_control}: enum with 9 values---\texttt{action}, \texttt{cut}, \texttt{hold}, \texttt{resume}, \texttt{slow\_down}, \texttt{speed\_up}, \texttt{new\_take}, \texttt{playback}, \texttt{lock}
+  \item \texttt{transition}: type (6 values: cut through match\_cut) and duration
+  \item \texttt{narrative\_function}: v0.3 addition---\texttt{setup}, \texttt{development}, \texttt{turn}, \texttt{resolution}
+\end{itemize}
+
+\subsection{v0.3 Additions}
+
+Version 0.3 adds four capabilities for multi-character scenes:
+
+\textbf{Interactions.} An array of typed interactions between characters, each with participants (minimum 2), type (7 values: combat, conversation, physical\_contact, chase, standoff, collaboration, observation), choreography description, optional dominance indicator, and props list.
+
+\textbf{Character modes.} Characters defined in SessionContextV3 can have named modes---distinct visual or behavioral states (e.g.\ ``desperate'', ``commanding'')---each with a visual delta description. The beat references the active mode by ID.
+
+\textbf{Reference images.} An array of images anchored by type (style, pose, composition, continuity) with description. Each requires either a URL or data URI.
+
+\textbf{Structured dialogue.} A \texttt{dialogue\_lines} array with speaker reference, line text, and optional delivery note, enabling multi-speaker scenes without overloading the character beat state.
+
+\subsection{SessionContext}
+
+The session layer, established once and evolving slowly, contains:
+
+\begin{itemize}\tightlist
+  \item \textbf{World description}: freeform text establishing the narrative universe
+  \item \textbf{Style guide}: visual style, photography style, color palette (primary + accent + description), material vocabulary, global negative prompts
+  \item \textbf{Character registry}: per-character ID, name, description, visual anchors (with required flag), default emotion, modes (v0.3)
+  \item \textbf{Location registry}: per-location ID, name, description, materials, established lighting
+  \item \textbf{Consistency anchors}: character rules, material rules, style rules, prohibitions---declarative constraints for generation consistency
+  \item \textbf{Drift repairs}: failure mode / correction pairs encoding known failure patterns and their remediation
+\end{itemize}
+
+%% ============================================================
+\section{Intent--Realization Mapping}\label{sec:mapping}
+%% ============================================================
+
+BSD occupies the \emph{intent} layer in a three-layer production pipeline:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Layer} & \textbf{Format} & \textbf{Captures} \\
+\midrule
+Intent & BSD & What the director \emph{wants}: mood, emotion, performance, flow, framing \\
+Realization & OpenUSD & What the scene \emph{contains}: geometry, transforms, materials, light physics \\
+Editorial & OTIO & How shots are \emph{assembled}: clips, transitions, timeline structure \\
+\bottomrule
+\end{tabular}
+\caption{Three-layer production pipeline.}
+\label{tab:layers}
+\end{table}
+
+\subsection{BSD to OpenUSD}
+
+BSD camera state maps to USD camera primitives: \texttt{shot\_type} determines \texttt{focalLength}, \texttt{depth\_of\_field} maps to \texttt{fStop} and \texttt{focusDistance}, \texttt{angle} maps to \texttt{xformOp:rotateXYZ}, and \texttt{movement} maps to time-sampled \texttt{xformOp:translate}. Lighting sources map to UsdLux prim types with \texttt{inputs:intensity} and \texttt{inputs:colorTemperature}.
+
+The recommended USD composition strategy uses sublayers: \texttt{director\_intent.usda} (strongest opinion) over \texttt{base\_scene.usda} (weakest), using \texttt{over} prims. Fields that USD cannot natively express---mood, performance notes, narrative function---can be stored as \texttt{customData} dictionaries or via a proposed \texttt{BatonDirectionAPI} applied schema.
+
+\subsection{BSD to Video Generation Prompts}
+
+BSD fields compose into structured prompts following a consistent template: Subject + Action $\rightarrow$ Environment $\rightarrow$ Style/Composition $\rightarrow$ Camera Motion $\rightarrow$ Ambiance. Typed fields produce more consistent prompt tokens than freeform descriptions. In image-to-video mode, a webcam frame serves as the first frame with the BSD-composed prompt as generation guidance.
+
+\subsection{BSD to OpenTimelineIO}
+
+A directing session maps to an OTIO Timeline. Interpretation ticks produce Clips; \texttt{flow\_control: hold} produces Gaps. BSD transition fields map to OTIO Transition objects. Directorial signals (flow control, narrative function) become Markers with metadata.
+
+%% ============================================================
+\section{Body-as-Interface: Interpretation Pipeline}\label{sec:pipeline}
+%% ============================================================
+
+BSD is designed as the output format for a real-time interpretation system that translates embodied directorial performance into structured data. The working prototype, Baton, implements this pipeline:
+
+\begin{enumerate}
+  \item \textbf{Input capture.} Browser-based: webcam via getUserMedia~\cite{getusermedia} (640$\times$480), voice via Web Speech API~\cite{webspeechapi} (continuous recognition), and text input for explicit overrides.
+  \item \textbf{Interpretation tick.} Every 3 seconds: \texttt{captureFrame()} produces a base64 JPEG (0.6 quality). The frame, voice transcript, text direction, and previous tick's signals are sent to a vision LLM (Gemini 2.5 Flash-Lite~\cite{gemini2024} via OpenRouter).
+  \item \textbf{Dual-stream output.} A single LLM call produces both a creative scene interpretation (BSD-structured) and technical command gesture detection, using a layered prompt architecture. One frame, two interpretations, no cost or latency doubling.
+  \item \textbf{BSD production.} The LLM returns a BSD BeatDescription as structured JSON. Parse failure falls back to a neutral default scene.
+\end{enumerate}
+
+\subsection{Input Hierarchy}
+
+Multiple input modalities are resolved with explicit priority, encoded in the system prompt:
+
+\begin{itemize}\tightlist
+  \item \textbf{Text} (highest): explicit override for any field
+  \item \textbf{Voice} (mid): character identity, performance notes
+  \item \textbf{Gesture} (mid): blocking, physical energy
+  \item \textbf{Facial emotion} (lowest): character emotional state (continuous, least likely to be a deliberate command)
+\end{itemize}
+
+\subsection{Temporal Disambiguation}
+
+A single webcam frame cannot distinguish a held pose (deliberate command gesture) from a mid-motion instant (natural performance). The system reports every gesture detected per frame without intent filtering. The client tracks consecutive detections across ticks: tentative (1 frame) becomes confirmed (2+ frames, $\geq$6 seconds of consistent detection). Previous tick signals are fed back to the model for persistence context.
+
+%% ============================================================
+\section{Discussion}\label{sec:discussion}
+%% ============================================================
+
+\subsection{BSD as Open Standard}
+
+BSD follows the precedent of open interchange formats with proprietary implementations: MIDI~\cite{midi1983} (open format) alongside proprietary instruments and DAWs; OpenUSD (open scene graph) alongside proprietary renderers. The schema is published under Apache 2.0; interpretation engines that produce BSD are proprietary. This creates ecosystem value without exposing competitive moats.
+
+\subsection{Structured Control in Video Generation}
+
+Reports of structured input in commercial systems---JSON schema prompting in Veo 3.1~\cite{veo31_2025}, per-shot storyboard control in Kling 3.0~\cite{kling30_2025}---suggest a trend toward typed scene control. These systems implement model-specific structured input; BSD provides a model-agnostic interchange layer above them. As more generation systems accept structured input, a common interchange format becomes increasingly valuable.
+
+\subsection{Spatial Computing}
+
+USD export enables consumption by spatial computing platforms (Apple Vision Pro via RealityKit, NVIDIA Omniverse). BSD-to-USD mapping means directorial intent for immersive 3D scenes can be expressed through the same schema used for 2D video generation. A proposed \texttt{BatonDirectionAPI} applied schema would make intent metadata formally queryable within USD scene graphs.
+
+\subsection{ASWF Trajectory}
+
+BSD is intended to complement OpenUSD and OpenTimelineIO as the intent layer in the production pipeline: USD for realization, OTIO for editorial, BSD for directorial intent. If adopted alongside these formats, the three would together span the full production pipeline from creative direction through scene assembly to editorial finishing.
+
+\subsection{Ethical Considerations}
+
+The body-as-interface approach raises specific ethical concerns. The director's face and body are the primary input; consent and likeness rights must be explicit---not only for directors but for any performer or actor whose likeness may be captured. Image-to-video mode uses the director's webcam frame as a generation seed, raising deepfake-adjacent concerns. Real-time interpretation of emotion intersects with surveillance and affect-detection ethics.
+
+Implementations should address data retention: whether webcam frames are retained beyond the active session, whether likeness data is ephemeral or persistent, and what consent mechanisms apply when non-directors (actors, collaborators) are in frame. In the Baton prototype, all data processing is session-scoped, director-initiated, and director-controlled; webcam frames are processed in memory and not persisted beyond the interpretation tick.
+
+%% ============================================================
+\section{Limitations}\label{sec:limitations}
+%% ============================================================
+
+BSD is a schema specification, not an empirical evaluation. We identify the following limitations:
+
+\begin{itemize}
+  \item \textbf{No ground truth dataset.} There is no established ground truth for ``correct'' scene interpretation of embodied directorial performance. Evaluation requires qualitative assessment by domain experts.
+  \item \textbf{Vocabulary coverage.} BSD's enumerations, while grounded in standard cinematographic terminology~\cite{katz2019,brown2016}, do not capture every possible directorial intent. The freeform string fields (\texttt{mood}, \texttt{performance\_note}, \texttt{direction\_notes}) serve as escape hatches.
+  \item \textbf{Single-model interpretation.} The current Baton prototype relies on a single vision LLM call per tick. Gesture detection competes for output tokens with scene interpretation, and JPEG quality (0.6) limits gesture detection fidelity.
+  \item \textbf{Temporal resolution.} The 3-second tick interval is sufficient for scene-level direction but may be too coarse for frame-accurate choreography.
+  \item \textbf{LLM hallucination.} The vision LLM may produce non-standard vocabulary or hallucinate scene fields. Schema validation catches type errors but not semantic hallucination.
+\end{itemize}
+
+%% ============================================================
+\section{Conclusion}\label{sec:conclusion}
+%% ============================================================
+
+We have presented the Baton Scene Description (BSD), a typed interchange schema for cinematic directorial intent. BSD fills a gap in the production pipeline: the format for what the director means, complementing OpenUSD's format for what the scene contains and OpenTimelineIO's format for how shots are assembled.
+
+The schema's two-layer architecture (SessionContext + BeatDescription), grounded vocabulary (22 camera movements, 8 angles, 10 shot types, 6 lighting styles, 9 flow control states), and concrete mappings to USD, video generation prompts, and OTIO provide a practical foundation for the emerging embodied AI filmmaking pipeline.
+
+BSD v0.1--v0.3 are published as JSON Schema (draft 2020-12) with TypeScript source of truth, available at \url{https://github.com/digital-rain-tech/baton-scene-description} and archived on Zenodo (DOI: 10.5281/zenodo.20373111) under the Apache 2.0 license.
+
+\subsection{Future Work}
+
+\begin{itemize}\tightlist
+  \item Integration with real-time interactive video generation (Happy Oyster~\cite{happyoyster2026} Directing Mode)
+  \item OpenUSD export function implementing BSD-to-USD mapping
+  \item Multi-character scene support beyond v0.3's interaction primitives
+  \item \texttt{BatonDirectionAPI} as a proposed USD applied schema
+  \item Director-specific gesture profile learning
+  \item Formal user study with professional directors
+\end{itemize}
+
+%% ============================================================
+\section*{Acknowledgments}
+%% ============================================================
+
+The Baton Scene Description schema was developed in connection with Storming Teacup Studios, where it forms part of the Baton directing interface system. JK Fidden contributed the directorial domain expertise and cinematic vocabulary that grounds the schema design.
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}
