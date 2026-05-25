@@ -19,7 +19,7 @@ The schema vocabulary is grounded in standard directorial terminology — camera
 | **v0.2** | Two-layer architecture: SessionContext (world bible, registries) + BeatDescription (per-tick). Adds style guides, negative prompts, location references, duration |
 | **v0.3** | Character interactions, character modes, reference images, structured dialogue lines, narrative function |
 
-All three versions are published as JSON Schema. v0.3 is the current citable version.
+All three versions are published as JSON Schema. The Zenodo record covers the full spec package (v0.1–v0.3); v0.3 is the current version.
 
 ## Files
 
@@ -138,7 +138,7 @@ The trend toward structured scene control in AI video generation — including J
 ```bibtex
 @misc{chan2026bsd,
   author       = {Chan, Augustin and Fidden, JK},
-  title        = {{Baton Scene Description (BSD): Schema Specification v0.3}},
+  title        = {{Baton Scene Description (BSD): Schema Specification (v0.1–v0.3)}},
   year         = {2026},
   publisher    = {Zenodo},
   doi          = {10.5281/zenodo.XXXXXXX},

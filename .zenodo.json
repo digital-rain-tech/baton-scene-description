@@ -1,5 +1,5 @@
 {
-  "title": "Baton Scene Description (BSD): Schema Specification v0.3",
+  "title": "Baton Scene Description (BSD): Schema Specification (v0.1–v0.3)",
   "description": "A typed interchange schema for cinematic directorial intent. BSD captures what a film director wants — camera movement, lighting style, character emotional state, scene flow control — as structured, machine-readable data. It complements OpenUSD (scene realization) and OTIO (editorial timeline) by adding an intent layer: the format for what the director means. Includes JSON Schema (draft 2020-12) for all three schema versions (v0.1, v0.2, v0.3) and the TypeScript source of truth.",
   "upload_type": "dataset",
   "creators": [
