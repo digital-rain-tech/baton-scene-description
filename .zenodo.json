@@ -28,7 +28,7 @@
   ],
   "related_identifiers": [
     {
-      "identifier": "https://github.com/augchan42/baton-scene-description",
+      "identifier": "https://github.com/digital-rain-tech/baton-scene-description",
       "relation": "isSupplementTo",
       "scheme": "url"
     }
