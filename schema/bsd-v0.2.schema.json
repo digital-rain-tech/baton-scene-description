@@ -1,0 +1,207 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://batonscene.dev/schema/bsd-v0.2.schema.json",
+  "title": "Baton Scene Description — Beat Description v0.2",
+  "description": "Per-tick beat description produced every interpretation cycle. v0.2 introduces the two-layer architecture (SessionContext + BeatDescription), negative prompts, location references, and duration. Pair with SessionContext v0.2 (bsd-v0.2-session.schema.json).",
+  "type": "object",
+  "required": [
+    "version", "session_id", "beat_id", "sequence_num", "timestamp_ms",
+    "camera", "lighting", "characters", "environment",
+    "mood", "mood_intensity", "flow_control",
+    "negative_prompts", "direction_notes"
+  ],
+  "properties": {
+    "version": { "const": "0.2" },
+    "session_id": { "type": "string" },
+    "beat_id": { "type": "string" },
+    "sequence_num": { "type": "integer", "minimum": 0 },
+    "timestamp_ms": { "type": "number", "minimum": 0 },
+    "duration_seconds": { "type": "number", "minimum": 0 },
+    "camera": { "$ref": "#/$defs/CameraState" },
+    "lighting": { "$ref": "#/$defs/LightingState" },
+    "characters": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/CharacterBeatState" }
+    },
+    "environment": { "$ref": "#/$defs/EnvironmentBeatState" },
+    "mood": { "type": "string" },
+    "mood_intensity": { "type": "number", "minimum": 0, "maximum": 1 },
+    "flow_control": { "$ref": "#/$defs/FlowControl" },
+    "transition": { "$ref": "#/$defs/TransitionState" },
+    "negative_prompts": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "direction_notes": { "type": "string" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "CameraMovement": {
+      "type": "string",
+      "enum": [
+        "static", "pan_left", "pan_right", "whip_pan",
+        "tilt_up", "tilt_down", "pedestal_up", "pedestal_down",
+        "truck_left", "truck_right", "dolly_in", "dolly_out",
+        "zoom_in", "zoom_out", "dolly_zoom",
+        "crane_up", "crane_down", "tracking",
+        "arc_left", "arc_right", "steadicam", "handheld"
+      ]
+    },
+    "CameraAngle": {
+      "type": "string",
+      "enum": [
+        "eye_level", "low_angle", "high_angle", "birds_eye",
+        "worms_eye", "dutch_angle", "over_the_shoulder", "pov"
+      ]
+    },
+    "ShotType": {
+      "type": "string",
+      "enum": [
+        "extreme_wide", "wide", "full", "medium_wide", "medium",
+        "medium_close_up", "close_up", "extreme_close_up",
+        "insert", "two_shot"
+      ]
+    },
+    "SubjectPosition": {
+      "type": "string",
+      "enum": ["center", "left_third", "right_third", "lower_third", "upper_third"]
+    },
+    "DepthOfField": {
+      "type": "string",
+      "enum": ["shallow", "medium", "deep"]
+    },
+    "CameraState": {
+      "type": "object",
+      "required": ["movement", "movement_speed", "angle", "shot_type", "composition"],
+      "properties": {
+        "movement": { "$ref": "#/$defs/CameraMovement" },
+        "movement_speed": { "type": "number", "minimum": 0, "maximum": 1 },
+        "angle": { "$ref": "#/$defs/CameraAngle" },
+        "shot_type": { "$ref": "#/$defs/ShotType" },
+        "composition": {
+          "type": "object",
+          "required": ["subject_position", "depth_of_field", "headroom", "look_room"],
+          "properties": {
+            "subject_position": { "$ref": "#/$defs/SubjectPosition" },
+            "depth_of_field": { "$ref": "#/$defs/DepthOfField" },
+            "headroom": { "type": "number", "minimum": 0, "maximum": 1 },
+            "look_room": { "type": "number", "minimum": 0, "maximum": 1 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "LightRole": {
+      "type": "string",
+      "enum": ["key", "fill", "back", "rim", "ambient", "practical"]
+    },
+    "LightQuality": {
+      "type": "string",
+      "enum": ["hard", "soft"]
+    },
+    "LightDirection": {
+      "type": "string",
+      "enum": [
+        "front", "three_quarter_left", "three_quarter_right",
+        "side_left", "side_right", "back", "top", "under"
+      ]
+    },
+    "LightSource": {
+      "type": "object",
+      "required": ["role", "quality", "direction", "intensity", "color_temp_k"],
+      "properties": {
+        "role": { "$ref": "#/$defs/LightRole" },
+        "quality": { "$ref": "#/$defs/LightQuality" },
+        "direction": { "$ref": "#/$defs/LightDirection" },
+        "intensity": { "type": "number", "minimum": 0, "maximum": 1 },
+        "color_temp_k": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "LightingStyle": {
+      "type": "string",
+      "enum": ["high_key", "low_key", "chiaroscuro", "motivated", "natural", "silhouette"]
+    },
+    "TimeOfDay": {
+      "type": "string",
+      "enum": [
+        "dawn", "golden_hour_morning", "midday", "overcast",
+        "golden_hour_evening", "dusk", "night", "candlelight"
+      ]
+    },
+    "LightingState": {
+      "type": "object",
+      "required": ["sources", "style", "time_of_day", "color_temp_k", "contrast_ratio"],
+      "properties": {
+        "sources": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/LightSource" }
+        },
+        "style": { "$ref": "#/$defs/LightingStyle" },
+        "time_of_day": { "$ref": "#/$defs/TimeOfDay" },
+        "color_temp_k": { "type": "number", "minimum": 0 },
+        "contrast_ratio": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "FlowControl": {
+      "type": "string",
+      "enum": [
+        "action", "cut", "hold", "resume", "slow_down",
+        "speed_up", "new_take", "playback", "lock"
+      ]
+    },
+    "EnvironmentMode": {
+      "type": "string",
+      "enum": ["camera", "imagined"]
+    },
+    "EnvironmentBeatState": {
+      "type": "object",
+      "required": ["mode", "description", "weather", "time_period", "interior_exterior"],
+      "properties": {
+        "location_ref": { "type": "string" },
+        "mode": { "$ref": "#/$defs/EnvironmentMode" },
+        "description": { "type": "string" },
+        "weather": { "type": "string" },
+        "time_period": { "type": "string" },
+        "interior_exterior": {
+          "type": "string",
+          "enum": ["interior", "exterior", "mixed"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "TransitionType": {
+      "type": "string",
+      "enum": ["cut", "dissolve", "fade_to_black", "fade_from_black", "wipe", "match_cut"]
+    },
+    "TransitionState": {
+      "type": "object",
+      "required": ["type", "duration_seconds"],
+      "properties": {
+        "type": { "$ref": "#/$defs/TransitionType" },
+        "duration_seconds": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "CharacterBeatState": {
+      "type": "object",
+      "required": [
+        "character_ref", "emotional_state", "emotional_intensity",
+        "action", "blocking", "is_speaking", "dialogue", "performance_note"
+      ],
+      "properties": {
+        "character_ref": { "type": "string" },
+        "emotional_state": { "type": "string" },
+        "emotional_intensity": { "type": "number", "minimum": 0, "maximum": 1 },
+        "action": { "type": "string" },
+        "blocking": { "type": "string" },
+        "is_speaking": { "type": "boolean" },
+        "dialogue": { "type": "string" },
+        "performance_note": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

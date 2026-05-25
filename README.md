@@ -20,20 +20,24 @@ The schema vocabulary is grounded in standard directorial terminology — camera
 | **v0.2** | Two-layer architecture: SessionContext (world bible, registries) + BeatDescription (per-tick). Adds style guides, negative prompts, location references, duration |
 | **v0.3** | Character interactions, character modes, reference images, structured dialogue lines, narrative function |
 
-v0.2 exists in the TypeScript source as an intermediate iteration but is not published as a standalone JSON Schema. The v0.3 schema is the current citable version.
+All three versions are published as JSON Schema. v0.3 is the current citable version.
 
 ## Files
 
 ```
 schema/
-  bsd-v0.1.schema.json           # JSON Schema (draft 2020-12) — v0.1 SceneDescription
-  bsd-v0.3.schema.json           # JSON Schema (draft 2020-12) — v0.3 BeatDescriptionV3
-  bsd-v0.3-session.schema.json   # JSON Schema (draft 2020-12) — v0.3 SessionContextV3
+  bsd-v0.1.schema.json           # v0.1 SceneDescription (flat)
+  bsd-v0.2.schema.json           # v0.2 BeatDescription
+  bsd-v0.2-session.schema.json   # v0.2 SessionContext
+  bsd-v0.3.schema.json           # v0.3 BeatDescriptionV3
+  bsd-v0.3-session.schema.json   # v0.3 SessionContextV3
 typescript/
   scene-schema.ts                # TypeScript source of truth (all versions)
 paper/
   (arXiv preprint source — forthcoming)
 ```
+
+All schemas use JSON Schema draft 2020-12.
 
 ## Quick Example
 

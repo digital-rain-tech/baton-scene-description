@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://batonscene.dev/schema/bsd-v0.2-session.schema.json",
+  "title": "Baton Scene Description — Session Context v0.2",
+  "description": "Established once per directing session. Contains the world bible, character/location registries, style guide, and consistency anchors. Pair with BeatDescription v0.2 (bsd-v0.2.schema.json) which is produced every interpretation tick.",
+  "type": "object",
+  "required": [
+    "version", "session_id", "created_at", "world_description",
+    "style", "characters", "locations", "anchors", "drift_repairs"
+  ],
+  "properties": {
+    "version": { "const": "0.2" },
+    "session_id": { "type": "string" },
+    "created_at": { "type": "number", "minimum": 0 },
+    "title": { "type": "string" },
+    "world_description": { "type": "string" },
+    "style": { "$ref": "#/$defs/StyleGuide" },
+    "characters": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/CharacterDefinition" }
+    },
+    "locations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/LocationDefinition" }
+    },
+    "anchors": { "$ref": "#/$defs/ConsistencyAnchors" },
+    "drift_repairs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/DriftRepair" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "StyleGuide": {
+      "type": "object",
+      "required": ["visual_style", "color_palette", "material_vocabulary", "global_negative_prompts"],
+      "properties": {
+        "visual_style": { "type": "string" },
+        "photography_style": { "type": "string" },
+        "color_palette": {
+          "type": "object",
+          "required": ["primary", "accent", "description"],
+          "properties": {
+            "primary": { "type": "array", "items": { "type": "string" } },
+            "accent": { "type": "array", "items": { "type": "string" } },
+            "description": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "material_vocabulary": { "type": "array", "items": { "type": "string" } },
+        "global_negative_prompts": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "CharacterDefinition": {
+      "type": "object",
+      "required": ["id", "name", "description", "visual_anchors", "default_emotion"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "scale": { "type": "string" },
+        "visual_anchors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["item", "required"],
+            "properties": {
+              "item": { "type": "string" },
+              "required": { "type": "boolean" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "default_emotion": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "LocationDefinition": {
+      "type": "object",
+      "required": ["id", "name", "description", "materials"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "materials": { "type": "array", "items": { "type": "string" } },
+        "established_lighting": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "ConsistencyAnchors": {
+      "type": "object",
+      "required": ["character_rules", "material_rules", "style_rules", "prohibitions"],
+      "properties": {
+        "character_rules": { "type": "array", "items": { "type": "string" } },
+        "material_rules": { "type": "array", "items": { "type": "string" } },
+        "style_rules": { "type": "array", "items": { "type": "string" } },
+        "prohibitions": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "DriftRepair": {
+      "type": "object",
+      "required": ["failure_mode", "correction"],
+      "properties": {
+        "failure_mode": { "type": "string" },
+        "correction": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}
