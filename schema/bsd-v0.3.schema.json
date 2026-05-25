@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://batonscene.dev/schema/bsd-v0.3.schema.json",
+  "$id": "https://batonscene.org/schema/bsd-v0.3.schema.json",
   "title": "Baton Scene Description v0.3",
   "description": "A typed interchange schema for cinematic directorial intent. v0.3 adds character interactions, character modes, reference images, structured dialogue, and narrative function. The schema has two layers: SessionContext (established once per session) and BeatDescription (produced every interpretation tick).",
   "type": "object",

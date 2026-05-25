@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://batonscene.dev/schema/bsd-v0.3-session.schema.json",
+  "$id": "https://batonscene.org/schema/bsd-v0.3-session.schema.json",
   "title": "Baton Scene Description — Session Context v0.3",
   "description": "Established once per directing session. Contains the world bible, character/location registries, style guide, and consistency anchors. Pair with BeatDescriptionV3 (bsd-v0.3.schema.json) which is produced every interpretation tick.",
   "type": "object",

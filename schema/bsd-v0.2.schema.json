@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://batonscene.dev/schema/bsd-v0.2.schema.json",
+  "$id": "https://batonscene.org/schema/bsd-v0.2.schema.json",
   "title": "Baton Scene Description — Beat Description v0.2",
   "description": "Per-tick beat description produced every interpretation cycle. v0.2 introduces the two-layer architecture (SessionContext + BeatDescription), negative prompts, location references, and duration. Pair with SessionContext v0.2 (bsd-v0.2-session.schema.json).",
   "type": "object",

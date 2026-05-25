@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://batonscene.dev/schema/bsd-v0.1.schema.json",
+  "$id": "https://batonscene.org/schema/bsd-v0.1.schema.json",
   "title": "Baton Scene Description v0.1",
   "description": "A typed interchange schema for cinematic directorial intent. Captures what the director wants — camera, lighting, mood, characters, environment, flow control — as structured, machine-readable data.",
   "type": "object",

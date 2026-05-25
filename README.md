@@ -1,7 +1,6 @@
 # Baton Scene Description (BSD) — Schema Specification v0.3
 
-**Authors:** Augustin Chan, JK Fidden
-**Affiliation:** STS Creative
+**Authors:** Augustin Chan (Digital Rain Technologies), JK Fidden (Storming Teacup Studios)
 **License:** Apache 2.0
 
 ## Overview
