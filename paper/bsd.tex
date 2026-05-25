@@ -12,6 +12,7 @@
 \usepackage{xcolor}
 \usepackage{framed}
 \usepackage{booktabs}
+\usepackage{float}
 \usepackage{listings}
 \definecolor{shadecolor}{RGB}{248,248,248}
 \newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
@@ -73,7 +74,7 @@ This paper is a schema specification and design argument, not an empirical evalu
 
 Two capabilities have recently converged to make embodied AI direction viable. Vision LLMs (Gemini~\cite{gemini2024}, GPT-4V, Qwen) can interpret human performance from webcam frames in real time. Interactive video generation systems (Happy Oyster~\cite{happyoyster2026} Directing Mode, Veo 3.1~\cite{veo31_2025}) accept continuous mid-generation interventions. These two capabilities, connected by a structured interchange format, create the first viable pipeline for embodied AI direction. BSD provides that interchange format.
 
-The rapid maturation of AI video generation---HappyHorse 1.0~\cite{happyhorse2026}, Seedance 2.0~\cite{seedance2026}, Happy Oyster~\cite{happyoyster2026}---and the emerging trend toward structured scene control in commercial systems (e.g.\ reported JSON schema prompting in Veo 3.1~\cite{veo31_2025}, per-shot storyboard control in Kling 3.0~\cite{kling30_2025}) supports BSD's core premise: structured, typed data produces more consistent results than freeform text.
+The rapid maturation of AI video generation---HappyHorse 1.0~\cite{happyhorse2026}, Seedance 2.0~\cite{seedance2026}, Happy Oyster~\cite{happyoyster2026}---and the emerging trend toward structured scene control in commercial systems (e.g.\ reported structured prompting in Veo 3.1~\cite{veo31_2025}, multi-shot storyboarding in Kling 3.0~\cite{kling30_2025}) supports BSD's core premise: structured, typed data produces more consistent results than freeform text.
 
 %% ============================================================
 \section{Related Work}\label{sec:related}
@@ -129,7 +130,7 @@ BSD is designed around five principles:
 
 BSD has evolved through three versions, each published as JSON Schema (draft 2020-12)~\cite{jsonschema2020}:
 
-\begin{table}[h]
+\begin{table}[H]
 \centering
 \begin{tabular}{@{}lll@{}}
 \toprule
@@ -148,7 +149,7 @@ v0.3 & Two-layer (extended) & Interactions, character modes, reference images, d
 
 The camera state captures five dimensions of cinematographic control:
 
-\begin{table}[h]
+\begin{table}[H]
 \centering
 \begin{tabular}{@{}llp{7cm}@{}}
 \toprule
@@ -169,7 +170,7 @@ The camera state captures five dimensions of cinematographic control:
 
 Lighting state combines individual source definitions with scene-level style:
 
-\begin{table}[h]
+\begin{table}[H]
 \centering
 \begin{tabular}{@{}llp{7cm}@{}}
 \toprule
@@ -190,7 +191,7 @@ Lighting state combines individual source definitions with scene-level style:
 
 Each character in the beat array carries performance state:
 
-\begin{table}[h]
+\begin{table}[H]
 \centering
 \begin{tabular}{@{}llp{7cm}@{}}
 \toprule
@@ -254,7 +255,7 @@ The session layer, established once and evolving slowly, contains:
 
 BSD occupies the \emph{intent} layer in a three-layer production pipeline:
 
-\begin{table}[h]
+\begin{table}[H]
 \centering
 \begin{tabular}{@{}lll@{}}
 \toprule
@@ -321,7 +322,7 @@ BSD follows the precedent of open interchange formats with proprietary implement
 
 \subsection{Structured Control in Video Generation}
 
-Reports of structured input in commercial systems---JSON schema prompting in Veo 3.1~\cite{veo31_2025}, per-shot storyboard control in Kling 3.0~\cite{kling30_2025}---suggest a trend toward typed scene control. These systems implement model-specific structured input; BSD provides a model-agnostic interchange layer above them. As more generation systems accept structured input, a common interchange format becomes increasingly valuable.
+Reports of structured input in commercial systems---structured prompting in Veo 3.1~\cite{veo31_2025}, multi-shot storyboarding in Kling 3.0~\cite{kling30_2025}---suggest a trend toward typed scene control. These systems implement model-specific structured input; BSD provides a model-agnostic interchange layer above them. As more generation systems accept structured input, a common interchange format becomes increasingly valuable.
 
 \subsection{Spatial Computing}
 
