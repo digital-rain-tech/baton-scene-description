@@ -57,7 +57,7 @@ BSD occupies a missing layer in the production pipeline. OpenUSD~\cite{openusd20
 
 Film direction is fundamentally embodied. A director communicates intent through body---leaning into a monitor to signal intensity, sweeping an arm to indicate a tracking shot, modulating vocal energy to shape an actor's performance. This embodied vocabulary is not incidental; it is the primary medium through which directorial vision becomes realized scene~\cite{katz2019}.
 
-AI video generation systems---HappyHorse~\cite{happyhorse2026}, Seedance~\cite{seedance2026}, Veo, Kling, Runway, Sora---accept text prompts or explicit parameters. None interpret embodied performance. Existing scene description formats describe what a scene \emph{contains} (OpenUSD~\cite{openusd2016}: geometry, transforms, materials, light physics) or how shots are \emph{assembled} (OpenTimelineIO~\cite{otio2018}: clips, transitions, timeline structure). To our knowledge, no open format captures what the director \emph{means}: mood, emotional intensity, performance notes, flow control, framing decisions as structured data.
+AI video generation systems---HappyHorse~\cite{happyhorse2026}, Seedance~\cite{seedance2026}, Veo, Kling, Runway, Sora---accept text prompts or explicit parameters. None interpret embodied performance. Existing scene description formats describe what a scene \emph{contains} (OpenUSD~\cite{openusd2016}: geometry, transforms, materials, light physics) or how shots are \emph{assembled} (OpenTimelineIO~\cite{otio2018}: clips, transitions, timeline structure). To our knowledge, no open format captures what the director \emph{means}: mood, emotional intensity, performance notes, flow control, framing decisions as structured data. The insight that embodied directorial performance should be captured as structured data for AI generation originated in the production context of Storming Teacup Studios.
 
 This paper presents the Baton Scene Description (BSD), a typed interchange schema for cinematic directorial intent. Our contributions are:
 
@@ -377,7 +377,7 @@ BSD v0.1--v0.3 are published as JSON Schema (draft 2020-12) with TypeScript sour
 \section*{Acknowledgments}
 %% ============================================================
 
-The Baton Scene Description schema was developed in connection with Storming Teacup Studios, where it forms part of the Baton directing interface system. JK Fidden contributed the directorial domain expertise and cinematic vocabulary that grounds the schema design.
+The Baton Scene Description schema was developed in connection with Storming Teacup Studios as part of the Baton directing interface system. The originating insight---that a director's embodied performance should be captured as structured, machine-readable data for AI scene generation---came from JK Fidden, Founder of Storming Teacup Studios. JK Fidden contributed the directorial domain expertise, cinematic vocabulary, and conceptual framework that grounds the schema design.
 
 \bibliographystyle{plain}
 \bibliography{references}
